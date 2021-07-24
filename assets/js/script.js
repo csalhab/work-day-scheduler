@@ -13,7 +13,7 @@ var schedulerTopDate = now.format("dddd, MMMM Do");
 //gets current hour from momentjs now variable
 //returns in military 24 hr time
 var hour = now.hour();
-console.log(hour);
+//console.log(hour);
 //convert/format to standard time 
 //var standardHour = moment(hour, "H").format("h");
 
@@ -29,15 +29,8 @@ var hourBlocks = ["10am", "11am", "12pm", "1pm", "2pm", "3pm","4pm", "5pm"];
 
 var divContainerEl = $("#container");
 
-var nineAmTextAreaEl = $("#nineAm");
+var nineAmTextAreaEl = $("#9am");
 
-/*
-var userEntry = {
-    hour: hour.value,
-    description: description.value.trim(),
-    date: date.value
-};
-*/
 
 //FUNCTIONS =================================================
 
@@ -58,6 +51,7 @@ $.each(hourBlocks, function(i, hourBlock) {
     var textAreaEl = $("<textarea></textarea>");
     textAreaElClassBackgroundColor = checkPresentPastFuture(hourBlock);
     textAreaEl.attr("class", textAreaElClassBackgroundColor);
+    textAreaEl.attr("id", hourBlock);
     divTimeblockEl.append(textAreaEl);
 
     var buttonEl = $("<button></button>");
@@ -72,10 +66,6 @@ $.each(hourBlocks, function(i, hourBlock) {
     divContainerEl.append(divTimeblockEl);
 
  });
-
-function storeEntry() {
-    //to be done
-}
 
 function checkPresentPastFuture(hB) {
     
@@ -100,32 +90,64 @@ function checkPresentPastFuture(hB) {
     //determine if current/momentjs hour is present, past or future for 10am-5pm only
     //set the right bootstrap css class for background-color
     if (hour === hourNoPeriod) {
-        console.log("present");
+        //console.log("present");
         tense = present;
     };
     if (hour > hourNoPeriod) {
-        console.log("past");
+        //console.log("past");
         tense = past;
     } else if (hour < hourNoPeriod) {
-        console.log("future");
+        //console.log("future");
         tense = future;
     };
 
     //determine if current/momentjs hour is present, past or future for 9am block only
     //set the right bootstrap css class for background-color
     if (hour === 9) {
-        console.log("present");
+        //console.log("present");
         nineAmTextAreaEl.attr("class", present);
     };
     if (hour > 9) {
-        console.log("past");
+        //console.log("past");
         nineAmTextAreaEl.attr("class", past);
     } else if (hour < 9) {
-        console.log("future");
+        //console.log("future");
         nineAmTextAreaEl.attr("class", future);
     };
 
     return tense;
+}
+
+
+function storeEntry(event) {
+
+    var associatedHour = event.currentTarget.parentNode.children[0].textContent;
+    //textarea's user's entry
+    var description = event.currentTarget.parentNode.children[1].value;
+
+    //object for local storage
+    var userEntry = {
+        date: now,
+        associatedHour: associatedHour,
+        description: description.trim()
+    };
+
+    //stringify & set key in local storage for userEntry array
+    localStorage.setItem("userEntry", JSON.stringify(userEntry));
+
+}
+
+function renderEntry() {
+    var lastEntry = JSON.parse(localStorage.getItem("userEntry"));
+
+    if (lastEntry !== null) {
+        elementId = lastEntry.associatedHour;
+        document.getElementById(elementId).value = lastEntry.description;
+    }
+}
+
+function init() {
+    renderEntry();
 }
 
 
@@ -139,12 +161,14 @@ for (var i = 1; i < hourBlocks.length+2; i++) {
 
     saveBtnEl.on("click", function (event) {
         event.preventDefault();
-        console.log("save button " + event.target.id + " clicked");
+        //console.log("save button " + event.target.id + " clicked");
         //console.log(event.currentTarget.parentNode.children[0].childNodes[0].textContent);
+
+        storeEntry(event);
     });
 
 }
 
 
 //INITIALIZATION ============================================
-
+init();
