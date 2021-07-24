@@ -31,6 +31,8 @@ var divContainerEl = $("#container");
 
 var nineAmTextAreaEl = $("#9am");
 
+var userEntryArray;
+
 
 //FUNCTIONS =================================================
 
@@ -121,28 +123,46 @@ function checkPresentPastFuture(hB) {
 
 function storeEntry(event) {
 
+    //if (!userEntryArray) {
+        //var userEntryArray = [];
+    //}
+
     var associatedHour = event.currentTarget.parentNode.children[0].textContent;
     //textarea's user's entry
     var description = event.currentTarget.parentNode.children[1].value;
 
     //object for local storage
+    /*
     var userEntry = {
         date: now,
         associatedHour: associatedHour,
         description: description.trim()
     };
+    */
+
+    userEntryArray.push({date: now, associatedHour: associatedHour, description: description.trim()});
 
     //stringify & set key in local storage for userEntry array
-    localStorage.setItem("userEntry", JSON.stringify(userEntry));
+    //localStorage.setItem("userEntry", JSON.stringify(userEntry));
+
+    localStorage.setItem("userEntryArray", JSON.stringify(userEntryArray));
 
 }
 
 function renderEntry() {
-    var lastEntry = JSON.parse(localStorage.getItem("userEntry"));
+    var lastEntryArray = JSON.parse(localStorage.getItem("userEntryArray"));
 
-    if (lastEntry !== null) {
-        elementId = lastEntry.associatedHour;
-        document.getElementById(elementId).value = lastEntry.description;
+    if (lastEntryArray !== null) {
+        //elementId = lastEntry.associatedHour;
+        //document.getElementById(elementId).value = lastEntry.description;
+        for (var i=0; i < lastEntryArray.length; i++) {
+            var elementId = lastEntryArray[i].associatedHour;
+            document.getElementById(elementId).value = lastEntryArray[i].description;
+            console.log("lastEntryArray" + i + ": " + lastEntryArray[i].description);
+        }
+    } else {
+        //this allows to have multiple items added after reloading while keeping prior items
+        userEntryArray = [];
     }
 }
 
