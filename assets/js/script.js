@@ -29,6 +29,8 @@ var hourBlocks = ["10am", "11am", "12pm", "1pm", "2pm", "3pm","4pm", "5pm"];
 
 var divContainerEl = $("#container");
 
+var nineAmTextAreaEl = $("#nineAm");
+
 /*
 var userEntry = {
     hour: hour.value,
@@ -54,7 +56,8 @@ $.each(hourBlocks, function(i, hourBlock) {
     divTimeblockEl.append(divEl);
 
     var textAreaEl = $("<textarea></textarea>");
-    textAreaEl.attr("class", "description col col-lg-10");
+    textAreaElClassBackgroundColor = checkPresentPastFuture(hourBlock);
+    textAreaEl.attr("class", textAreaElClassBackgroundColor);
     divTimeblockEl.append(textAreaEl);
 
     var buttonEl = $("<button></button>");
@@ -74,6 +77,57 @@ function storeEntry() {
     //to be done
 }
 
+function checkPresentPastFuture(hB) {
+    
+    var present = "bg-danger description col col-lg-10";
+    var past = "bg-secondary description col col-lg-10";
+    var future = "bg-success description col col-lg-10";
+    var tense;
+    
+    //get the length of hB value, need it to use for substring next
+    var hourPeriodLength = hB.length;
+
+    //get just hour; leave off am/pm periods & cast to Number
+    hourNoPeriod = Number(hB.substring(0, hourPeriodLength - 2));
+
+    //only need afternoon biz hours 1, 2, 3, 4, 5
+    if (hourNoPeriod < 12 && hourNoPeriod !== 9 && hourNoPeriod !== 10 && hourNoPeriod !== 11) {
+        //convert only afternoon biz hours to military time
+        //will be used to compare with momentjs current hour which is military time already
+        hourNoPeriod = hourNoPeriod + 12;
+    };
+
+    //determine if current/momentjs hour is present, past or future for 10am-5pm only
+    //set the right bootstrap css class for background-color
+    if (hour === hourNoPeriod) {
+        console.log("present");
+        tense = present;
+    };
+    if (hour > hourNoPeriod) {
+        console.log("past");
+        tense = past;
+    } else if (hour < hourNoPeriod) {
+        console.log("future");
+        tense = future;
+    };
+
+    //determine if current/momentjs hour is present, past or future for 9am block only
+    //set the right bootstrap css class for background-color
+    if (hour === 9) {
+        console.log("present");
+        nineAmTextAreaEl.attr("class", present);
+    };
+    if (hour > 9) {
+        console.log("past");
+        nineAmTextAreaEl.attr("class", past);
+    } else if (hour < 9) {
+        console.log("future");
+        nineAmTextAreaEl.attr("class", future);
+    };
+
+    return tense;
+}
+
 
 //USER INTERACTIONS =========================================
 //gets and listens for all save buttons being clicked and 
@@ -87,31 +141,6 @@ for (var i = 1; i < hourBlocks.length+2; i++) {
         event.preventDefault();
         console.log("save button " + event.target.id + " clicked");
         //console.log(event.currentTarget.parentNode.children[0].childNodes[0].textContent);
-        var hourPeriodFromBtn = event.currentTarget.parentNode.children[0].childNodes[0].textContent;
-        var hourPeriodFromBtnLength = event.currentTarget.parentNode.children[0].childNodes[0].textContent.length;
-        console.log(hourPeriodFromBtn);
-        //call storeEntry()
-
-        //get just hour; leave off am/pm periods & cast to Number
-        //hourNoPeriod = Number(event.target.text.substring(0, event.target.text.length - 2));
-        hourNoPeriod = Number(hourPeriodFromBtn.substring(0, hourPeriodFromBtnLength - 2));
-        console.log("hourNoPeriod: " + hourNoPeriod);
-        //only need afternoon biz hours 1, 2, 3, 4, 5
-        if (hourNoPeriod < 12 && hourNoPeriod !== 9 && hourNoPeriod !== 10 && hourNoPeriod !== 11) {
-            //convert only afternoon biz hours to military time
-            //will be used to compare with momentjs current hour
-            hourNoPeriod = hourNoPeriod + 12;
-        };
-        console.log(hourNoPeriod);
-        if (hour === hourNoPeriod) {
-            console.log("present");
-        };
-        if (hour > hourNoPeriod) {
-            console.log("past");
-        } else {
-            console.log("future");
-        };
-
     });
 
 }
